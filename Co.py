@@ -3,7 +3,7 @@ from web3 import Web3
 import os
 
 # ===== CONFIGURATION =====
-TARGET_TOKEN = "0x452361b508b9033b9D2d66AD49eD166D097E6408"
+TARGET_TOKEN = "0xB8BE6894642d8daFdF8016865a7B0c7570D2816F"
 BSC_RPC_URL = "https://bsc-dataseed.binance.org/"
 PRIVATE_KEY = os.getenv("PRIVATE_KEY")
 
